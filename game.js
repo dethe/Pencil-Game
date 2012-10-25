@@ -61,10 +61,17 @@ function draw(){
 	
 	if(player.move === true){
 		var pixel = map.getImageData(player.x + (player.w/2) + (Math.cos(player.line_angle)*5), player.y + (player.h/2) + (Math.sin(player.line_angle)*5), 1, 1);
-		if(pixel.data[3] === 0){
+		if(pixel.data[3] === 0 && (player.x + (player.w/2)) > 0 && (player.x + (player.w/2)) < canvas.width && (player.y + (player.h/2)) > 0){
 			player.x += Math.cos(player.line_angle)*5;
 			player.y += Math.sin(player.line_angle)*5;
 		}else{
+			if((player.x + (player.w/2)) <= 0){
+				player.x = 1 - (player.w/2);
+			}else if((player.x + (player.w/2)) >= canvas.width){
+				player.x = canvas.width - (player.w/2) - 1;
+			}else if((player.y + (player.h/2)) <= 0){
+				player.y = 1 - (player.h/2);
+			}
 			if(player.hit === false){
 				player.hit = true;
 				player.line_angle = Math.PI*0.5;
