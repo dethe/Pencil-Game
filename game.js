@@ -20,7 +20,8 @@ var player = {
 		y: 0,
 		angle: 0,
 		created: false
-	}
+	},
+	alive: true
 }
 
 document.onmousemove = function(event){
@@ -126,3 +127,7 @@ map.fillRect(0, 430, 1000, 40);
 map.fillRect(0, 660, 1000, 40);
 
 map.globalCompositeOperation = "destination-out";
+
+player.line_angle = Math.PI*0.5;
+player.hit = true;
+player.move = true;
