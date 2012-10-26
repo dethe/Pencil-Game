@@ -21,7 +21,8 @@ var player = {
 		angle: 0,
 		created: false
 	},
-	alive: true
+	alive: true,
+	accuracy: 0.06
 }
 
 document.onmousemove = function(event){
@@ -39,7 +40,8 @@ document.onmousedown = function(event){
 		player.bullet.created = true;
 		player.bullet.x = player.x + (player.w/2);
 		player.bullet.y = player.y + (player.h/2);
-		player.bullet.angle = Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2)));
+		player.bullet.angle = Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) + ((Math.random()*(player.accuracy*2)) - player.accuracy);
+		console.log(player.bullet.angle);
 	}
 };
 
@@ -89,6 +91,15 @@ function draw(){
 	ctx.closePath();
 	ctx.stroke();
 	
+	ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+	ctx.beginPath();
+	ctx.moveTo((player.x+(player.w/2)), (player.y+(player.h/2)));
+	ctx.lineTo(Math.cos(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) - player.accuracy)*100 + player.x + (player.w/2), Math.sin(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) - player.accuracy)*100 + player.y + (player.h/2));
+	ctx.lineTo(Math.cos(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) + player.accuracy)*100 + player.x + (player.w/2), Math.sin(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) + player.accuracy)*100 + player.y + (player.h/2));
+	ctx.closePath();
+	ctx.fill();
+	
+	ctx.fillStyle = "#000";
 	
 	//CREATE THE PLAYER (circle)
 	ctx.beginPath();
