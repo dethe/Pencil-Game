@@ -85,7 +85,7 @@ function draw(){
 	//CREATE THE AIMING LINE
 	ctx.beginPath();
 	ctx.moveTo((player.x+(player.w/2)), (player.y+(player.h/2)));
-	ctx.lineTo(Math.cos(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))))*100000 + player.x + (player.w/2), Math.sin(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))))*100000 + player.y + (player.h/2));
+	ctx.lineTo(Math.cos(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))))*100 + player.x + (player.w/2), Math.sin(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))))*100 + player.y + (player.h/2));
 	ctx.closePath();
 	ctx.stroke();
 	
