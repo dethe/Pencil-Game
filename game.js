@@ -91,7 +91,7 @@ function draw(){
 	ctx.closePath();
 	ctx.stroke();
 	
-	ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+	ctx.fillStyle = "rgba(255, 125, 0, 0.5)";
 	ctx.beginPath();
 	ctx.moveTo((player.x+(player.w/2)), (player.y+(player.h/2)));
 	ctx.lineTo(Math.cos(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) - player.accuracy)*100 + player.x + (player.w/2), Math.sin(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) - player.accuracy)*100 + player.y + (player.h/2));
@@ -133,9 +133,18 @@ function draw(){
 
 setInterval(draw, 1000/60);
 
-map.fillRect(0, 170, 1000, 40);
-map.fillRect(0, 430, 1000, 40);
-map.fillRect(0, 660, 1000, 40);
+//Draw the 3 floors (horizontal bars)
+map.fillRect(0, 200, canvas.width, 40);
+map.fillRect(0, 430, canvas.width, 40);
+map.fillRect(0, 660, canvas.width, 40);
+
+map.fillRect(321, 0, 30, 200);
+map.fillRect(654, 0, 30, 200);
+
+map.fillRect(485, 210, 30, 230);
+
+map.fillRect(321, 470, 30, 200);
+map.fillRect(654, 470, 30, 200);
 
 map.globalCompositeOperation = "destination-out";
 
