@@ -11,9 +11,9 @@ var player = {
 	y: 500,
 	w: 15,
 	h: 15,
-	move: false,
-	hit: false,
-	line_angle: 0,
+	move: true,
+	hit: true,
+	line_angle: Math.PI*0.5,
 	action: "shoot",
 	bullet: {
 		x: 0,
@@ -21,9 +21,50 @@ var player = {
 		angle: 0,
 		created: false
 	},
-	alive: true,
-	accuracy: 0.06
+	accuracy: 0.06,
+	type: "player"
 }
+
+var AI = {
+	x: 100,
+	y: 100,
+	w: 15,
+	h: 15,
+	move: true,
+	hit: true,
+	line_angle: Math.PI*0.5,
+	action: "shoot",
+	bullet: {
+		x: 0,
+		y: 0,
+		angle: 0,
+		created: false
+	},
+	accuracy: 0.06,
+	type: "AI"
+}
+
+var AI2 = {
+	x: 500,
+	y: 100,
+	w: 15,
+	h: 15,
+	move: true,
+	hit: true,
+	line_angle: Math.PI*0.5,
+	action: "shoot",
+	bullet: {
+		x: 0,
+		y: 0,
+		angle: 0,
+		created: false
+	},
+	accuracy: 0.06,
+	type: "AI"
+}
+
+var playerList = [player, AI, AI2];
+var turn = player;
 
 document.onmousemove = function(event){
 	mouseX = event.clientX;
@@ -31,17 +72,9 @@ document.onmousemove = function(event){
 };
 
 document.onmousedown = function(event){
-	if(player.action === "move"){
-		if(player.move === false){
-			player.move = true;
-			player.line_angle = Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2)));
-		}
-	}else if(player.action === "shoot"){
-		player.bullet.created = true;
-		player.bullet.x = player.x + (player.w/2);
-		player.bullet.y = player.y + (player.h/2);
-		player.bullet.angle = Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) + ((Math.random()*(player.accuracy*2)) - player.accuracy);
-		console.log(player.bullet.angle);
+	if(turn === player){
+		executeAction(player);
+		
 	}
 };
 
@@ -62,28 +95,19 @@ function clear(){
 function draw(){
 	clear();
 	
-	if(player.move === true){
-		var pixel = map.getImageData(player.x + (player.w/2) + (Math.cos(player.line_angle)*5), player.y + (player.h/2) + (Math.sin(player.line_angle)*5), 1, 1);
-		if(pixel.data[3] === 0 && (player.x + (player.w/2)) > 0 && (player.x + (player.w/2)) < canvas.width && (player.y + (player.h/2)) > 0){
-			player.x += Math.cos(player.line_angle)*5;
-			player.y += Math.sin(player.line_angle)*5;
-		}else{
-			if((player.x + (player.w/2)) <= 0){
-				player.x = 1 - (player.w/2);
-			}else if((player.x + (player.w/2)) >= canvas.width){
-				player.x = canvas.width - (player.w/2) - 1;
-			}else if((player.y + (player.h/2)) <= 0){
-				player.y = 1 - (player.h/2);
-			}
-			if(player.hit === false){
-				player.hit = true;
-				player.line_angle = Math.PI*0.5;
-			}else{
-				player.hit = false;
-				player.move = false;
-			}
+	for(var i = 0; i < playerList.length; i++){
+		if(playerList[i].move === true){
+			move(playerList[i]);
+		}
+		ctx.beginPath();
+		ctx.arc((playerList[i].x+(player.w/2)), (playerList[i].y+(playerList[i].h/2)), playerList[i].w, 0, Math.PI*2, true); 
+		ctx.closePath();
+		ctx.fill();
+		if(playerList[i].bullet.created === true){
+			moveBullet(playerList[i]);
 		}
 	}
+	
 	//CREATE THE AIMING LINE
 	ctx.beginPath();
 	ctx.moveTo((player.x+(player.w/2)), (player.y+(player.h/2)));
@@ -98,37 +122,104 @@ function draw(){
 	ctx.lineTo(Math.cos(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) + player.accuracy)*100 + player.x + (player.w/2), Math.sin(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) + player.accuracy)*100 + player.y + (player.h/2));
 	ctx.closePath();
 	ctx.fill();
-	
 	ctx.fillStyle = "#000";
 	
-	//CREATE THE PLAYER (circle)
+	ctx.fillText(player.action, 10, 10);
+}
+
+function move(object){
+	var pixel = map.getImageData(object.x + (object.w/2) + (Math.cos(object.line_angle)*5), object.y + (object.h/2) + (Math.sin(object.line_angle)*5), 1, 1);
+	if(pixel.data[3] === 0 && (object.x + (object.w/2)) > 0 && (object.x + (object.w/2)) < canvas.width && (object.y + (object.h/2)) > 0 && (object.y + (object.h/2)) < canvas.height){
+		object.x += Math.cos(object.line_angle)*5;
+		object.y += Math.sin(object.line_angle)*5;
+	}else{
+		if((object.x + (object.w/2)) <= 0){
+			object.x = 1 - (object.w/2);
+		}else if((object.x + (object.w/2)) >= canvas.width){
+			object.x = canvas.width - (object.w/2) - 1;
+		}else if((object.y + (object.h/2)) <= 0){
+			object.y = 1 - (object.h/2);
+		}
+		if(object.hit === false){
+			object.hit = true;
+			object.line_angle = Math.PI*0.5;
+		}else{
+			console.log('turn: %o', turn);
+			if(turn === undefined){
+				//nothing
+			}else{
+				nextTurn();
+			}
+			object.hit = false;
+			object.move = false;
+		}
+	}
+}
+
+function nextTurn(){
+	var nextPlayerTurn = playerList.indexOf(turn)+1;
+	if(nextPlayerTurn > (playerList.length - 1)){
+		nextPlayerTurn = 0;
+	}
+	turn = playerList[nextPlayerTurn];
+	if(turn.type === "AI"){
+		var targetplayer = playerList.indexOf(turn)+1;
+		if(targetplayer > (playerList.length - 1)){
+			targetplayer = 0;
+		}
+		turn.line_angle = Math.atan2(playerList[targetplayer].x - turn.x, turn.y - playerList[targetplayer].y) + ((Math.random()*(turn.accuracy*2)) - turn.accuracy) - Math.PI*0.5;
+		executeAction(turn);
+	}
+}
+
+function moveBullet(object){
+	var pixel = map.getImageData(object.bullet.x + (Math.cos(object.bullet.angle)*5), object.bullet.y + (Math.sin(object.bullet.angle)*5), 1, 1);
+	if(pixel.data[3] === 0 && object.bullet.x > 0 && object.bullet.x < canvas.width && object.bullet.y > 0 && object.bullet.y < canvas.height){
+		object.bullet.x += Math.cos(object.bullet.angle)*5;
+		object.bullet.y += Math.sin(object.bullet.angle)*5;
+		for(var i = 0; i < playerList.length; i++){
+			if(playerList[i] != object){
+				if(object.bullet.x > playerList[i].x && object.bullet.x < (playerList[i].x + playerList[i].w) && object.bullet.y > playerList[i].y &&  object.bullet.y < (playerList[i].y + playerList[i].h)){
+					playerList.splice(i, 1);
+					object.line_angle = Math.PI*0.5;
+					object.move = true;
+					object.bullet.created = false;
+				}
+			}
+		}
+	}else{
+		map.fillStyle = "#fff";
+		map.beginPath();
+		map.arc(object.bullet.x, object.bullet.y, 30, 0, Math.PI*2, true); 
+		map.closePath();
+		map.fill();
+		object.line_angle = Math.PI*0.5;
+		object.move = true;
+		object.bullet.created = false;
+	}
 	ctx.beginPath();
-	ctx.arc((player.x+(player.w/2)), (player.y+(player.h/2)), player.w, 0, Math.PI*2, true); 
+	ctx.arc(object.bullet.x, object.bullet.y, 3, 0, Math.PI*2, true); 
 	ctx.closePath();
 	ctx.fill();
-	
-	if(player.bullet.created === true){
-		var pixel = map.getImageData(player.bullet.x + (Math.cos(player.bullet.angle)*5), player.bullet.y + (Math.sin(player.bullet.angle)*5), 1, 1);
-		if(pixel.data[3] === 0){
-			player.bullet.x += Math.cos(player.bullet.angle)*5;
-			player.bullet.y += Math.sin(player.bullet.angle)*5;
-		}else{
-			map.fillStyle = "#fff";
-			map.beginPath();
-			map.arc(player.bullet.x, player.bullet.y, 30, 0, Math.PI*2, true); 
-			map.closePath();
-			map.fill();
-			player.line_angle = Math.PI*0.5;
-			player.move = true;
-			player.bullet.created = false;
+}
+
+function executeAction(object){
+	if(object.action === "move"){
+		if(object.move === false){
+			object.move = true;
+			object.line_angle = Math.atan2(mouseY - (object.y + (object.h/2)), mouseX - (object.x + (object.w/2)));
 		}
-		ctx.beginPath();
-		ctx.arc(player.bullet.x, player.bullet.y, 5, 0, Math.PI*2, true); 
-		ctx.closePath();
-		ctx.fill();
+	}else if(object.action === "shoot"){
+		object.bullet.created = true;
+		object.bullet.x = object.x + (object.w/2);
+		object.bullet.y = object.y + (object.h/2);
+		if(object.type === "player"){
+			object.bullet.angle = Math.atan2(mouseY - (object.y + (object.h/2)), mouseX - (object.x + (object.w/2))) + ((Math.random()*(object.accuracy*2)) - object.accuracy);
+		}else if(object.type === "AI"){
+			console.log(object.line_angle);
+			object.bullet.angle = object.line_angle;
+		}
 	}
-	
-	ctx.fillText(player.action, 10, 10);
 }
 
 setInterval(draw, 1000/60);
@@ -138,6 +229,7 @@ map.fillRect(0, 200, canvas.width, 40);
 map.fillRect(0, 430, canvas.width, 40);
 map.fillRect(0, 660, canvas.width, 40);
 
+//Draw  the pillars
 map.fillRect(321, 0, 30, 200);
 map.fillRect(654, 0, 30, 200);
 
@@ -147,7 +239,3 @@ map.fillRect(321, 470, 30, 200);
 map.fillRect(654, 470, 30, 200);
 
 map.globalCompositeOperation = "destination-out";
-
-player.line_angle = Math.PI*0.5;
-player.hit = true;
-player.move = true;
