@@ -14,12 +14,15 @@ var player = {
 	move: true,
 	hit: true,
 	line_angle: Math.PI*0.5,
+	line_size: 100,
+	line_state: "up",
 	action: "shoot",
 	bullet: {
 		x: 0,
 		y: 0,
 		angle: 0,
-		created: false
+		created: false,
+		power: 0
 	},
 	accuracy: 0.06,
 	type: "player"
@@ -38,7 +41,8 @@ var AI = {
 		x: 0,
 		y: 0,
 		angle: 0,
-		created: false
+		created: false,
+		power: 0
 	},
 	accuracy: 0.06,
 	type: "AI"
@@ -57,7 +61,8 @@ var AI2 = {
 		x: 0,
 		y: 0,
 		angle: 0,
-		created: false
+		created: false,
+		power: 0
 	},
 	accuracy: 0.06,
 	type: "AI"
@@ -108,23 +113,38 @@ function draw(){
 		}
 	}
 	
-	//CREATE THE AIMING LINE
-	ctx.beginPath();
-	ctx.moveTo((player.x+(player.w/2)), (player.y+(player.h/2)));
-	ctx.lineTo(Math.cos(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))))*100 + player.x + (player.w/2), Math.sin(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))))*100 + player.y + (player.h/2));
-	ctx.closePath();
-	ctx.stroke();
+	if(turn === player){
+		//CREATE THE AIMING LINE
+		ctx.beginPath();
+		ctx.moveTo((player.x+(player.w/2)), (player.y+(player.h/2)));
+		ctx.lineTo(Math.cos(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))))*100 + player.x + (player.w/2), Math.sin(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))))*100 + player.y + (player.h/2));
+		ctx.closePath();
+		ctx.stroke();
+		
+		if(player.line_state === "up"){
+			player.line_size += 3;
+			if(player.line_size >= 100){
+				player.line_state = "down";
+			}
+		}else if(player.line_state === "down"){
+			player.line_size -= 3;
+			if(player.line_size <= 0){
+				player.line_state = "up";
+			}
+		}
+		
+		ctx.fillStyle = "rgba(" + Math.round((255/100)*player.line_size) + ", " + (255 - Math.round((255/100)*player.line_size)) + ", 0, 1)";
+		ctx.beginPath();
+		ctx.moveTo((player.x+(player.w/2)), (player.y+(player.h/2)));
+		ctx.lineTo(Math.cos(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) - player.accuracy)*player.line_size + player.x + (player.w/2), Math.sin(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) - player.accuracy)*player.line_size + player.y + (player.h/2));
+		ctx.lineTo(Math.cos(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) + player.accuracy)*player.line_size + player.x + (player.w/2), Math.sin(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) + player.accuracy)*player.line_size + player.y + (player.h/2));
+		ctx.closePath();
+		ctx.fill();
+		ctx.fillStyle = "#000";
+		
+		ctx.fillText(player.action, 10, 10);
+	}
 	
-	ctx.fillStyle = "rgba(255, 125, 0, 0.5)";
-	ctx.beginPath();
-	ctx.moveTo((player.x+(player.w/2)), (player.y+(player.h/2)));
-	ctx.lineTo(Math.cos(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) - player.accuracy)*100 + player.x + (player.w/2), Math.sin(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) - player.accuracy)*100 + player.y + (player.h/2));
-	ctx.lineTo(Math.cos(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) + player.accuracy)*100 + player.x + (player.w/2), Math.sin(Math.atan2(mouseY - (player.y + (player.h/2)), mouseX - (player.x + (player.w/2))) + player.accuracy)*100 + player.y + (player.h/2));
-	ctx.closePath();
-	ctx.fill();
-	ctx.fillStyle = "#000";
-	
-	ctx.fillText(player.action, 10, 10);
 }
 
 function move(object){
@@ -139,6 +159,8 @@ function move(object){
 			object.x = canvas.width - (object.w/2) - 1;
 		}else if((object.y + (object.h/2)) <= 0){
 			object.y = 1 - (object.h/2);
+		}else if((object.y + (object.h/2)) >= canvas.height){
+			object.y = canvas.height - (object.h/2) - 1;
 		}
 		if(object.hit === false){
 			object.hit = true;
