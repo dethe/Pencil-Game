@@ -6,6 +6,36 @@ var ctx = canvas.getContext("2d");
 var mouseX = 0;
 var mouseY = 0;
 
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = 
+          window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+ 
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+ 
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
+
+var scenes = [];
+var currentScene = undefined;
+
+var winner;
+
 var player = {
 	x: 500,
 	y: 500,
@@ -25,8 +55,10 @@ var player = {
 		power: 0
 	},
 	accuracy: 0.06,
-	type: "player"
+	type: "player",
+	name: prompt("Please enter your name","player")
 }
+
 
 var AI = {
 	x: 100,
@@ -45,7 +77,8 @@ var AI = {
 		power: 0
 	},
 	accuracy: 0.06,
-	type: "AI"
+	type: "AI",
+	name: "StupidAI#1"
 }
 
 var AI2 = {
@@ -65,7 +98,8 @@ var AI2 = {
 		power: 0
 	},
 	accuracy: 0.06,
-	type: "AI"
+	type: "AI",
+	name: "StupidAI#2"
 }
 
 var playerList = [player, AI, AI2];
@@ -77,37 +111,147 @@ document.onmousemove = function(event){
 };
 
 document.onmousedown = function(event){
-	if(turn === player){
+	if(turn === player && currentScene === game){
 		executeAction(player);
-		
 	}
 };
 
+document.onclick = function(event){
+	for(i = 0; i < currentScene.UI.length; i++){
+		if(currentScene.UI[i].UItype === "button"){
+			if(mouseX > currentScene.UI[i].x && mouseX < (currentScene.UI[i].x + currentScene.UI[i].w) && mouseY > currentScene.UI[i].y && mouseY < (currentScene.UI[i].y + currentScene.UI[i].h)){
+				currentScene.UI[i].click();
+			}
+		}
+	}
+}
+
 document.onkeydown = function(event){
-	keycode = event.keyCode;
-	if(keycode === 49){
-		player.action = "shoot";
-	}
-	if(keycode === 50){
-		player.action = "move";
+	if(currentScene === game){
+		keycode = event.keyCode;
+		if(keycode === 49){
+			player.action = "shoot";
+		}
+		if(keycode === 50){
+			player.action = "move";
+		}
 	}
 }
 
-function clear(){
-	ctx.clearRect(0, 0, canvas.width, canvas.height)
+scene = function(){
+	scenes.push(this);
 }
 
-function draw(){
+scene.prototype.draw = function(){
+	//draw gets called every frame as long as that scene is the current scene.
+}
+
+scene.prototype.init = function(){
+	//this is what gets called at the very start of the game. It should only be called once.
+}
+
+function switchScene(S){
+	currentScene = S;
+}
+
+function startGame(CurrScene){
+	for(var i = 0; i < scenes.length; i++){
+		scenes[i].init();
+	}
+	switchScene(CurrScene);
+	drawGame();
+}
+
+function drawGame(){
 	clear();
+	currentScene.draw();
+	gameLoop = requestAnimationFrame(drawGame);
+}
+
+var gameLoop = requestAnimationFrame(drawGame);
+
+
+button = function(xpos, ypos, width, height, buttontext, onclick){
+	this.x = xpos;
+	this.y = ypos;
+	this.w = width;
+	this.h = height;
+	this.text = buttontext;
+	this.buttoncolor = "#999";
+	this.UItype = "button";
+	this.click = onclick;
+	this.corners = 10;
+}
+
+button.prototype.draw = function(){
+	ctx.fillStyle = this.buttoncolor;
 	
+	ctx.beginPath();
+	ctx.moveTo(this.x + this.corners, this.y);
+	ctx.lineTo(this.x + this.w - this.corners, this.y);
+	ctx.quadraticCurveTo(this.x + this.w, this.y, this.x + this.w, this.y + this.corners);
+	ctx.lineTo(this.x + this.w, this.y + this.h - this.corners);
+	ctx.quadraticCurveTo(this.x + this.w, this.y + this.h, this.x + this.w - this.corners, this.y + this.h);
+	ctx.lineTo(this.x + this.corners, this.y + this.h);
+	ctx.quadraticCurveTo(this.x, this.y + this.h, this.x, this.y + this.h - this.corners);
+	ctx.lineTo(this.x, this.y + this.corners);
+	ctx.quadraticCurveTo(this.x, this.y, this.x + this.corners, this.y);
+	ctx.closePath();
+	ctx.fill();
+	ctx.stroke();
+	
+	//ctx.fillRect(this.x, this.y, this.w, this.h);
+	ctx.fillStyle = "#000";
+	ctx.font = "bold " + (Math.min(this.w, this.h) - 20) + "px 'Architects Daughter'";
+	ctx.textAlign = "center";
+	ctx.fillText(this.text, this.x + (this.w/2), this.y + (this.h/2 + 10));
+}
+
+button.prototype.click = function(){
+	if(this.click !== undefined){
+		this.click();
+	}
+}
+
+
+var menu = new scene()
+menu.init = function(){
+	this.UI = [
+		new button(350, 150, 300, 50, "Play game!", function(){switchScene(game);})
+	];
+}
+menu.draw = function(){
+	canvas.style.cursor = "default";
+	for(i = 0; i < this.UI.length; i++){
+		this.UI[i].draw();
+	}
+	ctx.font = "100px 'Architects Daughter'";
+	ctx.textAlign = "center";
+	ctx.fillText("Pencil Game", 500, 110);
+}
+
+var game = new scene()
+game.init = function(){
+	this.UI = [];
+}
+game.draw = function(){
+	if(playerList.length <= 1){
+		winner = turn.name;
+		switchScene(gameover);
+	}
+	ctx.drawImage(mapCanvas, 0, 0);
+	canvas.style.cursor = "crosshair";
 	for(var i = 0; i < playerList.length; i++){
 		if(playerList[i].move === true){
 			move(playerList[i]);
 		}
 		ctx.beginPath();
-		ctx.arc((playerList[i].x+(player.w/2)), (playerList[i].y+(playerList[i].h/2)), playerList[i].w, 0, Math.PI*2, true); 
+		ctx.arc((playerList[i].x+(playerList[i].w/2)), (playerList[i].y+(playerList[i].h/2)), playerList[i].w, 0, Math.PI*2, true); 
 		ctx.closePath();
 		ctx.fill();
+		ctx.font = "10px Arial";
+		ctx.textAlign = "center";
+		ctx.fillText(playerList[i].name, playerList[i].x+(playerList[i].w/2), playerList[i].y - 10);
 		if(playerList[i].bullet.created === true){
 			moveBullet(playerList[i]);
 		}
@@ -141,10 +285,32 @@ function draw(){
 		ctx.closePath();
 		ctx.fill();
 		ctx.fillStyle = "#000";
-		
-		ctx.fillText(player.action, 10, 10);
+		ctx.font = "12px Arial";
+		ctx.textAlign = "left";
+		ctx.fillText(player.action, 10, 12);
 	}
-	
+}
+
+var gameover = new scene()
+gameover.init = function(){
+	this.UI = [
+		new button(350, 150, 300, 50, "Back to menu", function(){switchScene(menu);})
+	]
+}
+gameover.draw = function(){
+	canvas.style.cursor = "default";
+	for(i = 0; i < this.UI.length; i++){
+		this.UI[i].draw();
+	}
+	ctx.fillStyle = "#000";
+	ctx.font = "70px 'Architects Daughter'";
+	ctx.textAlign = "center";
+	ctx.fillText("winner is " + winner, 500, 100);
+}
+
+
+function clear(){
+	ctx.clearRect(0, 0, canvas.width, canvas.height)
 }
 
 function move(object){
@@ -185,12 +351,14 @@ function nextTurn(){
 	}
 	turn = playerList[nextPlayerTurn];
 	if(turn.type === "AI"){
-		var targetplayer = playerList.indexOf(turn)+1;
-		if(targetplayer > (playerList.length - 1)){
-			targetplayer = 0;
+		if(playerList.length > 1){
+			var targetplayer = playerList.indexOf(turn)+1;
+			if(targetplayer > (playerList.length - 1)){
+				targetplayer = 0;
+			}
+			turn.line_angle = Math.atan2(playerList[targetplayer].x - turn.x, turn.y - playerList[targetplayer].y) + ((Math.random()*(turn.accuracy*2)) - turn.accuracy) - Math.PI*0.5;
+			executeAction(turn);
 		}
-		turn.line_angle = Math.atan2(playerList[targetplayer].x - turn.x, turn.y - playerList[targetplayer].y) + ((Math.random()*(turn.accuracy*2)) - turn.accuracy) - Math.PI*0.5;
-		executeAction(turn);
 	}
 }
 
@@ -244,8 +412,9 @@ function executeAction(object){
 	}
 }
 
-setInterval(draw, 1000/60);
+startGame(menu);
 
+map.fillStyle = "#999";
 //Draw the 3 floors (horizontal bars)
 map.fillRect(0, 200, canvas.width, 40);
 map.fillRect(0, 430, canvas.width, 40);
