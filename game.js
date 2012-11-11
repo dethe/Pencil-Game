@@ -36,73 +36,13 @@ var currentScene = undefined;
 
 var winner;
 
-var player = {
-	x: 500,
-	y: 500,
-	w: 15,
-	h: 15,
-	move: true,
-	hit: true,
-	line_angle: Math.PI*0.5,
-	line_size: 100,
-	line_state: "up",
-	action: "shoot",
-	bullet: {
-		x: 0,
-		y: 0,
-		angle: 0,
-		created: false,
-		power: 0
-	},
-	accuracy: 0.06,
-	type: "player",
-	name: prompt("Please enter your name","player")
-}
+var playername = prompt("Please enter your name","player");
 
+var player = {};
+var AI = {};
+var AI2 = {};
 
-var AI = {
-	x: 100,
-	y: 100,
-	w: 15,
-	h: 15,
-	move: true,
-	hit: true,
-	line_angle: Math.PI*0.5,
-	action: "shoot",
-	bullet: {
-		x: 0,
-		y: 0,
-		angle: 0,
-		created: false,
-		power: 0
-	},
-	accuracy: 0.06,
-	type: "AI",
-	name: "StupidAI#1"
-}
-
-var AI2 = {
-	x: 500,
-	y: 100,
-	w: 15,
-	h: 15,
-	move: true,
-	hit: true,
-	line_angle: Math.PI*0.5,
-	action: "shoot",
-	bullet: {
-		x: 0,
-		y: 0,
-		angle: 0,
-		created: false,
-		power: 0
-	},
-	accuracy: 0.06,
-	type: "AI",
-	name: "StupidAI#2"
-}
-
-var playerList = [player, AI, AI2];
+var playerList = [];
 var turn = player;
 
 document.onmousemove = function(event){
@@ -155,6 +95,7 @@ function switchScene(S){
 }
 
 function startGame(CurrScene){
+	resetgame();
 	for(var i = 0; i < scenes.length; i++){
 		scenes[i].init();
 	}
@@ -213,11 +154,104 @@ button.prototype.click = function(){
 	}
 }
 
+function resetgame(){
+	winner = undefined;
+	map.globalCompositeOperation = "source-over";
+	map.clearRect(0, 0, canvas.width, canvas.height);
+	
+	map.fillStyle = "#999";
+	//Draw the 3 floors (horizontal bars)
+	map.fillRect(0, 200, canvas.width, 40);
+	map.fillRect(0, 430, canvas.width, 40);
+	map.fillRect(0, 660, canvas.width, 40);
+	
+	//Draw  the pillars
+	map.fillRect(321, 0, 30, 200);
+	map.fillRect(654, 0, 30, 200);
+	
+	map.fillRect(485, 210, 30, 230);
+	
+	map.fillRect(321, 470, 30, 200);
+	map.fillRect(654, 470, 30, 200);
+	
+	map.globalCompositeOperation = "destination-out";
+	
+	player = {
+		x: 500,
+		y: 500,
+		w: 15,
+		h: 15,
+		move: true,
+		hit: true,
+		line_angle: Math.PI*0.5,
+		line_size: 100,
+		line_state: "up",
+		action: "shoot",
+		bullet: {
+			x: 0,
+			y: 0,
+			angle: 0,
+			created: false,
+			power: 0
+		},
+		accuracy: 0.06,
+		type: "player",
+		name: playername
+	};
+	AI = {
+		x: 100,
+		y: 100,
+		w: 15,
+		h: 15,
+		move: true,
+		hit: true,
+		line_angle: Math.PI*0.5,
+		action: "shoot",
+		bullet: {
+			x: 0,
+			y: 0,
+			angle: 0,
+			created: false,
+			power: 0
+		},
+		accuracy: 0.06,
+		type: "AI",
+		name: "StupidAI#1"
+	};
+	AI2 = {
+		x: 500,
+		y: 100,
+		w: 15,
+		h: 15,
+		move: true,
+		hit: true,
+		line_angle: Math.PI*0.5,
+		action: "shoot",
+		bullet: {
+			x: 0,
+			y: 0,
+			angle: 0,
+			created: false,
+			power: 0
+		},
+		accuracy: 0.06,
+		type: "AI",
+		name: "StupidAI#2"
+	};
+
+
+	playerList = [];
+	playerList.push(player);
+	playerList.push(AI);
+	playerList.push(AI2);
+	
+	turn = player;
+}
 
 var menu = new scene()
 menu.init = function(){
 	this.UI = [
-		new button(350, 150, 300, 50, "Play game!", function(){switchScene(game);})
+		new button(350, 150, 300, 50, "Play game!", function(){resetgame(); switchScene(game);})
 	];
 }
 menu.draw = function(){
@@ -307,7 +341,6 @@ gameover.draw = function(){
 	ctx.textAlign = "center";
 	ctx.fillText("winner is " + winner, 500, 100);
 }
-
 
 function clear(){
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -414,19 +447,3 @@ function executeAction(object){
 
 startGame(menu);
 
-map.fillStyle = "#999";
-//Draw the 3 floors (horizontal bars)
-map.fillRect(0, 200, canvas.width, 40);
-map.fillRect(0, 430, canvas.width, 40);
-map.fillRect(0, 660, canvas.width, 40);
-
-//Draw  the pillars
-map.fillRect(321, 0, 30, 200);
-map.fillRect(654, 0, 30, 200);
-
-map.fillRect(485, 210, 30, 230);
-
-map.fillRect(321, 470, 30, 200);
-map.fillRect(654, 470, 30, 200);
-
-map.globalCompositeOperation = "destination-out";
