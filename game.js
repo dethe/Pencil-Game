@@ -36,6 +36,9 @@ var currentScene = undefined;
 
 var winner;
 
+var currentmap = 0;
+var maps = ["Original Map", "Lines Map"]
+
 var playername = prompt("Please enter your name","player");
 
 var player = {};
@@ -154,27 +157,41 @@ button.prototype.click = function(){
 	}
 }
 
-function resetgame(){
-	winner = undefined;
+function drawmap(){
+	console.log("map")
 	map.globalCompositeOperation = "source-over";
 	map.clearRect(0, 0, canvas.width, canvas.height);
 	
-	map.fillStyle = "#999";
-	//Draw the 3 floors (horizontal bars)
-	map.fillRect(0, 200, canvas.width, 40);
-	map.fillRect(0, 430, canvas.width, 40);
-	map.fillRect(0, 660, canvas.width, 40);
-	
-	//Draw  the pillars
-	map.fillRect(321, 0, 30, 200);
-	map.fillRect(654, 0, 30, 200);
-	
-	map.fillRect(485, 210, 30, 230);
-	
-	map.fillRect(321, 470, 30, 200);
-	map.fillRect(654, 470, 30, 200);
+	if(maps[currentmap] === "Original Map"){
+		map.fillStyle = "#999";
+		//Draw the 3 floors (horizontal bars)
+		map.fillRect(0, 200, canvas.width, 40);
+		map.fillRect(0, 430, canvas.width, 40);
+		map.fillRect(0, 660, canvas.width, 40);
+		
+		//Draw  the pillars
+		map.fillRect(321, 0, 30, 200);
+		map.fillRect(654, 0, 30, 200);
+		
+		map.fillRect(485, 210, 30, 230);
+		
+		map.fillRect(321, 470, 30, 200);
+		map.fillRect(654, 470, 30, 200);
+	}else if(maps[currentmap] === "Lines Map"){
+		map.fillStyle = "#999";
+		//Draw the 3 floors (horizontal bars)
+		map.fillRect(0, 200, canvas.width, 60);
+		map.fillRect(0, 430, canvas.width, 60);
+		map.fillRect(0, 640, canvas.width, 60);
+	}
 	
 	map.globalCompositeOperation = "destination-out";
+}
+
+function resetgame(){
+	winner = undefined;
+	
+	drawmap();
 	
 	player = {
 		x: 500,
@@ -251,7 +268,10 @@ function resetgame(){
 var menu = new scene()
 menu.init = function(){
 	this.UI = [
-		new button(350, 150, 300, 50, "Play game!", function(){resetgame(); switchScene(game);})
+		new button(100, 250, 300, 50, "Play game!", function(){resetgame(); switchScene(game);}),
+		new button(100, 325, 300, 50, "Settings", function(){}),
+		new button(800, 475, 50, 50, ">", function(){currentmap+=1;if(currentmap > (maps.length - 1)){currentmap = 0;};drawmap();}),
+		new button(600, 475, 50, 50, "<", function(){currentmap-=1;if(currentmap < 0){currentmap = maps.length - 1;};drawmap();})
 	];
 }
 menu.draw = function(){
@@ -262,6 +282,12 @@ menu.draw = function(){
 	ctx.font = "100px 'Architects Daughter'";
 	ctx.textAlign = "center";
 	ctx.fillText("Pencil Game", 500, 110);
+	ctx.font = "20px 'Architects Daughter'";
+	ctx.fillText("Alpha", 800, 110);
+	
+	ctx.fillText(maps[currentmap], 725, 510);
+	ctx.drawImage(mapCanvas, 500, 200, 450, 250);
+	ctx.strokeRect(500, 200, 450, 250);
 }
 
 var game = new scene()
@@ -328,7 +354,7 @@ game.draw = function(){
 var gameover = new scene()
 gameover.init = function(){
 	this.UI = [
-		new button(350, 150, 300, 50, "Back to menu", function(){switchScene(menu);})
+		new button(350, 150, 300, 50, "Back to menu", function(){switchScene(menu);drawmap();})
 	]
 }
 gameover.draw = function(){
