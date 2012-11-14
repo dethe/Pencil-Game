@@ -489,8 +489,6 @@ function nextTurn(){
 	if(turn.type === "AI"){
 		if(playerList.length > 1){
 			var targetplayer;
-			var inRange = false;
-			var 
 			for(i = 0; i < playerList.length; i++){
 				if(playerList[i] !== turn){
 					if(targetplayer === undefined){
