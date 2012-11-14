@@ -37,9 +37,18 @@ var currentScene = undefined;
 var winner;
 
 var currentmap = 0;
-var maps = ["Original Map", "Lines Map"]
+var maps = ["Original Map", "Lines Map"];
+var settingsdata = {
+	accuracy: 0.06,
+}
+
+var AI_difficulty = 0;
+var AI_difficulties = ["Easy", "Challenging", "Hard", "Insane"];
 
 var playername = prompt("Please enter your name","player");
+
+var styles = ["Basic black", "Basic red"]
+var playerstyle = 0;
 
 var player = {};
 var AI = {};
@@ -211,9 +220,10 @@ function resetgame(){
 			created: false,
 			power: 0
 		},
-		accuracy: 0.06,
+		accuracy: settingsdata.accuracy,
 		type: "player",
-		name: playername
+		name: playername,
+		style: playerstyle
 	};
 	AI = {
 		x: 100,
@@ -231,13 +241,14 @@ function resetgame(){
 			created: false,
 			power: 0
 		},
-		accuracy: 0.06,
+		accuracy: settingsdata.accuracy,
 		type: "AI",
-		name: "StupidAI#1"
+		name: "StupidAI#1",
+		style: 0
 	};
 	AI2 = {
-		x: 500,
-		y: 100,
+		x: 800,
+		y: 400,
 		w: 15,
 		h: 15,
 		move: true,
@@ -251,9 +262,10 @@ function resetgame(){
 			created: false,
 			power: 0
 		},
-		accuracy: 0.06,
+		accuracy: settingsdata.accuracy,
 		type: "AI",
-		name: "StupidAI#2"
+		name: "StupidAI#2",
+		style: 0
 	};
 
 
@@ -269,9 +281,11 @@ var menu = new scene()
 menu.init = function(){
 	this.UI = [
 		new button(100, 250, 300, 50, "Play game!", function(){resetgame(); switchScene(game);}),
-		new button(100, 325, 300, 50, "Settings", function(){}),
-		new button(800, 475, 50, 50, ">", function(){currentmap+=1;if(currentmap > (maps.length - 1)){currentmap = 0;};drawmap();}),
-		new button(600, 475, 50, 50, "<", function(){currentmap-=1;if(currentmap < 0){currentmap = maps.length - 1;};drawmap();})
+		new button(100, 325, 300, 50, "Settings", function(){switchScene(settings);}),
+		new button(825, 475, 50, 50, ">", function(){currentmap+=1;if(currentmap > (maps.length - 1)){currentmap = 0;};drawmap();}),
+		new button(625, 475, 50, 50, "<", function(){currentmap-=1;if(currentmap < 0){currentmap = maps.length - 1;};drawmap();}),
+		new button(825, 550, 50, 50, ">", function(){AI_difficulty+=1;if(AI_difficulty > (AI_difficulties.length - 1)){AI_difficulty = 0;};}),
+		new button(625, 550, 50, 50, "<", function(){AI_difficulty-=1;if(AI_difficulty < 0){AI_difficulty = AI_difficulties.length - 1;};})
 	];
 }
 menu.draw = function(){
@@ -283,11 +297,62 @@ menu.draw = function(){
 	ctx.textAlign = "center";
 	ctx.fillText("Pencil Game", 500, 110);
 	ctx.font = "20px 'Architects Daughter'";
-	ctx.fillText("Alpha", 800, 110);
+	ctx.textAlign = "left";
+	ctx.fillText("Alpha", 775, 110);
 	
-	ctx.fillText(maps[currentmap], 725, 510);
-	ctx.drawImage(mapCanvas, 500, 200, 450, 250);
-	ctx.strokeRect(500, 200, 450, 250);
+	ctx.textAlign = "center";
+	ctx.fillText(maps[currentmap], 750, 510);
+	ctx.fillText(AI_difficulties[AI_difficulty], 750, 585);
+	ctx.drawImage(mapCanvas, 550, 200, 400, 250);
+	ctx.strokeRect(550, 200, 400, 250);
+	
+	ctx.beginPath();
+	ctx.moveTo(500, 150);
+	ctx.lineTo(500, 600);
+	ctx.closePath();
+	ctx.stroke();
+}
+
+var settings = new scene();
+settings.init = function(){
+	this.UI = [
+		new button(325, 150, 50, 50, ">", function(){settingsdata.accuracy+=0.01;if(settingsdata.accuracy > 0.1){settingsdata.accuracy = 0.01};}),
+		new button(210, 150, 50, 50, "<", function(){settingsdata.accuracy-=0.01;if(settingsdata.accuracy < 0.01){settingsdata.accuracy = 0.1};}),
+		new button(350, 550, 300, 50, "Back to menu", function(){switchScene(menu);}),
+		new button(600, 190, 300, 40, "Change name", function(){playername = prompt("Please enter your name","player");}),
+		new button(850, 425, 50, 50, ">", function(){playerstyle+=1;if(playerstyle>(styles.length-1)){playerstyle = 0};}),
+		new button(600, 425, 50, 50, "<", function(){playerstyle-=1;if(playerstyle<0){playerstyle = (styles.length-1)};}),
+	];
+}
+settings.draw = function(){
+	canvas.style.cursor = "default";
+	for(i = 0; i < this.UI.length; i++){
+		this.UI[i].draw();
+	}
+	ctx.font = "70px 'Architects Daughter'";
+	ctx.textAlign = "center";
+	ctx.fillText("Settings", 500, 100);
+	
+	ctx.font = "20px 'Architects Daughter'";
+	ctx.textAlign = "left";
+	ctx.fillText("Accuracy", 100, 180);
+	ctx.fillText("What else should I add here?", 100, 250);
+	ctx.textAlign = "center";
+	ctx.fillText(settingsdata.accuracy*100, 290, 180);
+	
+	ctx.fillText(playername, 750, 170);
+	ctx.beginPath();
+	ctx.arc(750, 325, 70, 0, Math.PI*2, true); 
+	ctx.closePath();
+	changestyle(playerstyle);
+	ctx.fillStyle = "#000";
+	ctx.fillText(styles[playerstyle], 750, 455);
+	
+	ctx.beginPath();
+	ctx.moveTo(500, 150);
+	ctx.lineTo(500, 500);
+	ctx.closePath();
+	ctx.stroke();
 }
 
 var game = new scene()
@@ -308,7 +373,8 @@ game.draw = function(){
 		ctx.beginPath();
 		ctx.arc((playerList[i].x+(playerList[i].w/2)), (playerList[i].y+(playerList[i].h/2)), playerList[i].w, 0, Math.PI*2, true); 
 		ctx.closePath();
-		ctx.fill();
+		changestyle(playerList[i].style);
+		ctx.fillStyle = "#000";
 		ctx.font = "10px Arial";
 		ctx.textAlign = "center";
 		ctx.fillText(playerList[i].name, playerList[i].x+(playerList[i].w/2), playerList[i].y - 10);
@@ -372,6 +438,17 @@ function clear(){
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
 }
 
+function changestyle(number){
+	ctx.stroke();
+	if(styles[number] === "Basic black"){
+		ctx.fillStyle = "#333";
+		ctx.fill();
+	}else if(styles[number] === "Basic red"){
+		ctx.fillStyle = "#b11";
+		ctx.fill();
+	}
+}
+
 function move(object){
 	var pixel = map.getImageData(object.x + (object.w/2) + (Math.cos(object.line_angle)*5), object.y + (object.h/2) + (Math.sin(object.line_angle)*5), 1, 1);
 	if(pixel.data[3] === 0 && (object.x + (object.w/2)) > 0 && (object.x + (object.w/2)) < canvas.width && (object.y + (object.h/2)) > 0 && (object.y + (object.h/2)) < canvas.height){
@@ -411,7 +488,24 @@ function nextTurn(){
 	turn = playerList[nextPlayerTurn];
 	if(turn.type === "AI"){
 		if(playerList.length > 1){
-			var targetplayer = playerList.indexOf(turn)+1;
+			var targetplayer;
+			var inRange = false;
+			var 
+			for(i = 0; i < playerList.length; i++){
+				if(playerList[i] !== turn){
+					if(targetplayer === undefined){
+						targetplayer = i;
+					}else{
+						var dx = playerList[i].x-turn.x;
+						var dy = playerList[i].y-turn.y;
+						var dx2 = playerList[targetplayer].x-turn.x;
+						var dy2 = playerList[targetplayer].y-turn.y;
+						if(Math.sqrt(dx*dx+dy*dy) < Math.sqrt(dx2*dx2+dy2*dy2)){
+							targetplayer = i;
+						}
+					}
+				}
+			}
 			if(targetplayer > (playerList.length - 1)){
 				targetplayer = 0;
 			}
