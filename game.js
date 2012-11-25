@@ -75,6 +75,7 @@ document.onclick = function(event){
 }
 
 document.ontouchend = function(event){
+	console.log(event.touches);
 	mouseX = event.touches[0].pageX;
 	mouseY = event.touches[0].pageY;
 	console.log("works");
