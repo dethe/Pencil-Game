@@ -69,11 +69,13 @@ document.onmousedown = function(event){
 };
 
 document.onclick = function(event){
+	console.log("works");
 	event.preventDefault();
 	click();
 }
 
 document.ontouch = function(event){
+	console.log("works");
 	event.preventDefault();
 	click();
 }
