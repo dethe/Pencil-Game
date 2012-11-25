@@ -514,17 +514,20 @@ function nextTurn(){
 	if(turn.type === "AI"){
 		if(playerList.length > 1){
 			var targetplayer;
+			var distance;
 			for(i = 0; i < playerList.length; i++){
 				if(playerList[i] !== turn){
+					var dx = playerList[i].x-turn.x;
+					var dy = playerList[i].y-turn.y;
 					if(targetplayer === undefined){
 						targetplayer = i;
+						distance = Math.sqrt(dx*dx+dy*dy);
 					}else{
-						var dx = playerList[i].x-turn.x;
-						var dy = playerList[i].y-turn.y;
 						var dx2 = playerList[targetplayer].x-turn.x;
 						var dy2 = playerList[targetplayer].y-turn.y;
 						if(Math.sqrt(dx*dx+dy*dy) < Math.sqrt(dx2*dx2+dy2*dy2)){
 							targetplayer = i;
+							distance = Math.sqrt(dx*dx+dy*dy);
 						}
 					}
 				}
@@ -532,7 +535,19 @@ function nextTurn(){
 			if(targetplayer > (playerList.length - 1)){
 				targetplayer = 0;
 			}
-			turn.line_angle = Math.atan2(playerList[targetplayer].x - turn.x, turn.y - playerList[targetplayer].y) + ((Math.random()*(turn.accuracy*2)) - turn.accuracy) - Math.PI*0.5;
+			console.log(distance);
+			if(distance < (1000 - settingsdata.accuracy*9000)){
+				turn.action = "shoot";
+				turn.line_angle = Math.atan2(playerList[targetplayer].x - turn.x, turn.y - playerList[targetplayer].y) + ((Math.random()*(turn.accuracy*2)) - turn.accuracy) - Math.PI*0.5;
+			}else{
+				var random = Math.random();
+				if(random > 0.5){
+					turn.action = "shoot";
+				}else{
+					turn.action = "move";
+				}
+				turn.line_angle = Math.atan2(playerList[targetplayer].x - turn.x, turn.y - playerList[targetplayer].y) + ((Math.random()*(turn.accuracy*2)) - turn.accuracy) - Math.PI*0.5;
+			}
 			executeAction(turn);
 		}
 	}
