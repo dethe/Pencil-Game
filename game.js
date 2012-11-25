@@ -69,10 +69,12 @@ canvas.onclick = function(event){
 }
 
 canvas.ontouchend = function(event){
+	event.preventDefault();
 	click();
 }
 
 document.ontouchmove = function(event){
+	event.preventDefault();
 	mouseX = event.touches[0].pageX;
 	mouseY = event.touches[0].pageY;
 }
