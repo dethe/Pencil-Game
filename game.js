@@ -62,18 +62,13 @@ document.onmousemove = function(event){
 	mouseY = event.clientY;
 };
 
-document.onmousedown = function(event){
-	if(turn === player && currentScene === game){
-		executeAction(player);
-	}
-};
-
-document.onclick = function(event){
+canvas.onclick = function(event){
+	console.log('click');
 	event.preventDefault();
 	click();
 }
 
-document.ontouchend = function(event){
+canvas.ontouchend = function(event){
 	event.preventDefault();
 	click();
 }
@@ -92,6 +87,9 @@ function click(){
 				currentScene.UI[i].click();
 			}
 		}
+	}
+	if(turn === player && currentScene === game){
+		executeAction(player);
 	}
 }
 
