@@ -69,6 +69,16 @@ document.onmousedown = function(event){
 };
 
 document.onclick = function(event){
+	event.preventDefault();
+	click();
+}
+
+document.ontouch = function(event){
+	event.preventDefault();
+	click();
+}
+
+function click(){
 	for(i = 0; i < currentScene.UI.length; i++){
 		if(currentScene.UI[i].UItype === "button"){
 			if(mouseX > currentScene.UI[i].x && mouseX < (currentScene.UI[i].x + currentScene.UI[i].w) && mouseY > currentScene.UI[i].y && mouseY < (currentScene.UI[i].y + currentScene.UI[i].h)){
