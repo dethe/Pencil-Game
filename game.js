@@ -37,7 +37,7 @@ var currentScene = undefined;
 var winner;
 
 var currentmap = 0;
-var maps = ["Original Map", "Lines Map"];
+var maps = [{name: "Original Map", AI_amount: 2, spawns: [[100, 188], [500, 648], [800, 418]]}, {name: "Lines Map", AI_amount: 2, spawns: [[100, 188], [500, 628], [800, 418]]}, {name: "Curves Of Danger", AI_amount: 2, spawns: [[100, 188], [500, 628], [800, 418]]}];
 var settingsdata = {
 	accuracy: 0.06,
 }
@@ -47,7 +47,7 @@ var AI_difficulties = ["Easy", "Challenging", "Hard", "Insane"];
 
 var playername = prompt("Please enter your name","player");
 
-var styles = ["Basic black", "Basic red"]
+var styles = ["Basic black", "Basic red", "Basic blue", "Basic yellow", "Basic green"]
 var playerstyle = 0;
 
 var player = {};
@@ -171,7 +171,7 @@ function drawmap(){
 	map.globalCompositeOperation = "source-over";
 	map.clearRect(0, 0, canvas.width, canvas.height);
 	
-	if(maps[currentmap] === "Original Map"){
+	if(maps[currentmap].name === "Original Map"){
 		map.fillStyle = "#999";
 		//Draw the 3 floors (horizontal bars)
 		map.fillRect(0, 200, canvas.width, 40);
@@ -186,12 +186,26 @@ function drawmap(){
 		
 		map.fillRect(321, 470, 30, 200);
 		map.fillRect(654, 470, 30, 200);
-	}else if(maps[currentmap] === "Lines Map"){
+	}else if(maps[currentmap].name === "Lines Map"){
 		map.fillStyle = "#999";
 		//Draw the 3 floors (horizontal bars)
 		map.fillRect(0, 200, canvas.width, 60);
 		map.fillRect(0, 430, canvas.width, 60);
 		map.fillRect(0, 640, canvas.width, 60);
+	}else if(maps[currentmap].name === "Curves Of Danger"){
+		map.fillStyle = "#999";
+		map.beginPath();
+		map.moveTo(0, 0);
+		map.bezierCurveTo(40, 500, 50, 600, 100, 650);
+		map.lineTo(140, 650);
+		map.bezierCurveTo(160, 500, 200, 400, 150, 300);
+		map.bezierCurveTo(200, 300, 250, 500, 400, 600);
+		map.bezierCurveTo(450, 650, 500, 250, 300, 300);
+		map.bezierCurveTo(500, 300, 600, 400, 700, 650);
+		map.lineTo(1000, 700);
+		map.lineTo(0, 700);
+		map.closePath();
+		map.fill();
 	}
 	
 	map.globalCompositeOperation = "destination-out";
@@ -199,16 +213,16 @@ function drawmap(){
 
 function resetgame(){
 	winner = undefined;
-	
+	playerList = [];
 	drawmap();
 	
 	player = {
-		x: 500,
-		y: 500,
+		x: maps[currentmap].spawns[0][0],
+		y: maps[currentmap].spawns[0][1],
 		w: 15,
 		h: 15,
-		move: true,
-		hit: true,
+		move: false,
+		hit: false,
 		line_angle: Math.PI*0.5,
 		line_size: 100,
 		line_state: "up",
@@ -225,54 +239,56 @@ function resetgame(){
 		name: playername,
 		style: playerstyle
 	};
-	AI = {
-		x: 100,
-		y: 100,
-		w: 15,
-		h: 15,
-		move: true,
-		hit: true,
-		line_angle: Math.PI*0.5,
-		action: "shoot",
-		bullet: {
-			x: 0,
-			y: 0,
-			angle: 0,
-			created: false,
-			power: 0
-		},
-		accuracy: settingsdata.accuracy,
-		type: "AI",
-		name: "StupidAI#1",
-		style: 0
-	};
-	AI2 = {
-		x: 800,
-		y: 400,
-		w: 15,
-		h: 15,
-		move: true,
-		hit: true,
-		line_angle: Math.PI*0.5,
-		action: "shoot",
-		bullet: {
-			x: 0,
-			y: 0,
-			angle: 0,
-			created: false,
-			power: 0
-		},
-		accuracy: settingsdata.accuracy,
-		type: "AI",
-		name: "StupidAI#2",
-		style: 0
-	};
-
-
-	playerList = [];
 	playerList.push(player);
-	playerList.push(AI);
-	playerList.push(AI2);
+	
+	if(maps[currentmap].AI_amount > 0){
+		AI = {
+			x: maps[currentmap].spawns[1][0],
+			y: maps[currentmap].spawns[1][1],
+			w: 15,
+			h: 15,
+			move: false,
+			hit: false,
+			line_angle: Math.PI*0.5,
+			action: "shoot",
+			bullet: {
+				x: 0,
+				y: 0,
+				angle: 0,
+				created: false,
+				power: 0
+			},
+			accuracy: settingsdata.accuracy,
+			type: "AI",
+			name: "StupidAI#1",
+			style: 0
+		};
+		playerList.push(AI);
+	}
+	if(maps[currentmap].AI_amount > 1){
+		AI2 = {
+			x: maps[currentmap].spawns[2][0],
+			y: maps[currentmap].spawns[2][1],
+			w: 15,
+			h: 15,
+			move: false,
+			hit: false,
+			line_angle: Math.PI*0.5,
+			action: "shoot",
+			bullet: {
+				x: 0,
+				y: 0,
+				angle: 0,
+				created: false,
+				power: 0
+			},
+			accuracy: settingsdata.accuracy,
+			type: "AI",
+			name: "StupidAI#2",
+			style: 0
+		};
+		playerList.push(AI2);
+	}
 	
 	turn = player;
 }
@@ -301,7 +317,7 @@ menu.draw = function(){
 	ctx.fillText("Alpha", 775, 110);
 	
 	ctx.textAlign = "center";
-	ctx.fillText(maps[currentmap], 750, 510);
+	ctx.fillText(maps[currentmap].name, 750, 510);
 	ctx.fillText(AI_difficulties[AI_difficulty], 750, 585);
 	ctx.drawImage(mapCanvas, 550, 200, 400, 250);
 	ctx.strokeRect(550, 200, 400, 250);
@@ -445,6 +461,15 @@ function changestyle(number){
 		ctx.fill();
 	}else if(styles[number] === "Basic red"){
 		ctx.fillStyle = "#b11";
+		ctx.fill();
+	}else if(styles[number] === "Basic blue"){
+		ctx.fillStyle = "#33b";
+		ctx.fill();
+	}else if(styles[number] === "Basic yellow"){
+		ctx.fillStyle = "#cc0";
+		ctx.fill();
+	}else if(styles[number] === "Basic green"){
+		ctx.fillStyle = "#1b1";
 		ctx.fill();
 	}
 }
