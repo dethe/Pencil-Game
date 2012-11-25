@@ -58,8 +58,8 @@ var playerList = [];
 var turn = player;
 
 document.onmousemove = function(event){
-	mouseX = event.clientX;
-	mouseY = event.clientY;
+	mouseX = event.offsetX;
+	mouseY = event.offsetY;
 };
 
 canvas.onclick = function(event){
@@ -75,8 +75,8 @@ canvas.ontouchend = function(event){
 
 document.ontouchmove = function(event){
 	event.preventDefault();
-	mouseX = event.touches[0].pageX;
-	mouseY = event.touches[0].pageY;
+	mouseX = event.touches[0].offsetX;
+	mouseY = event.touches[0].offsetY;
 }
 
 function click(){
