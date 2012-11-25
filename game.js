@@ -37,7 +37,7 @@ var currentScene = undefined;
 var winner;
 
 var currentmap = 0;
-var maps = [{name: "Original Map", AI_amount: 2, spawns: [[100, 188], [500, 648], [800, 418]]}, {name: "Lines Map", AI_amount: 2, spawns: [[100, 188], [500, 628], [800, 418]]}, {name: "Curves Of Danger", AI_amount: 2, spawns: [[100, 188], [500, 628], [800, 418]]}];
+var maps = [{name: "Original Map", AI_amount: 2, spawns: [[100, 188], [500, 648], [800, 418]]}, {name: "Lines Map", AI_amount: 2, spawns: [[100, 188], [500, 628], [800, 418]]}];
 var settingsdata = {
 	accuracy: 0.06,
 }
@@ -192,20 +192,6 @@ function drawmap(){
 		map.fillRect(0, 200, canvas.width, 60);
 		map.fillRect(0, 430, canvas.width, 60);
 		map.fillRect(0, 640, canvas.width, 60);
-	}else if(maps[currentmap].name === "Curves Of Danger"){
-		map.fillStyle = "#999";
-		map.beginPath();
-		map.moveTo(0, 0);
-		map.bezierCurveTo(40, 500, 50, 600, 100, 650);
-		map.lineTo(140, 650);
-		map.bezierCurveTo(160, 500, 200, 400, 150, 300);
-		map.bezierCurveTo(200, 300, 250, 500, 400, 600);
-		map.bezierCurveTo(450, 650, 500, 250, 300, 300);
-		map.bezierCurveTo(500, 300, 600, 400, 700, 650);
-		map.lineTo(1000, 700);
-		map.lineTo(0, 700);
-		map.closePath();
-		map.fill();
 	}
 	
 	map.globalCompositeOperation = "destination-out";
