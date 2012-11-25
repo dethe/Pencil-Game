@@ -74,7 +74,7 @@ document.onclick = function(event){
 	click();
 }
 
-document.ontouch = function(event){
+document.ontouchend = function(event){
 	console.log("works");
 	event.preventDefault();
 	click();
