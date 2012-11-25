@@ -69,18 +69,15 @@ canvas.onclick = function(event){
 }
 
 canvas.ontouchend = function(event){
-	event.preventDefault();
 	click();
 }
 
 document.ontouchmove = function(event){
-	event.preventDefault();
 	mouseX = event.touches[0].pageX;
 	mouseY = event.touches[0].pageY;
 }
 
 function click(){
-	console.log("works");
 	for(i = 0; i < currentScene.UI.length; i++){
 		if(currentScene.UI[i].UItype === "button"){
 			if(mouseX > currentScene.UI[i].x && mouseX < (currentScene.UI[i].x + currentScene.UI[i].w) && mouseY > currentScene.UI[i].y && mouseY < (currentScene.UI[i].y + currentScene.UI[i].h)){
