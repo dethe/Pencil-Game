@@ -42,8 +42,8 @@ var settingsdata = {
 	accuracy: 0.06,
 }
 
-var AI_difficulty = 0;
-var AI_difficulties = ["Easy", "Challenging", "Hard", "Insane"];
+var AI_difficulty = 1;
+var AI_difficulties = ["Easy", "Medium"];
 
 var playername = prompt("Please enter your name","player");
 
@@ -535,18 +535,30 @@ function nextTurn(){
 			if(targetplayer > (playerList.length - 1)){
 				targetplayer = 0;
 			}
-			console.log(distance);
-			if(distance < (1000 - settingsdata.accuracy*9000)){
-				turn.action = "shoot";
-				turn.line_angle = Math.atan2(playerList[targetplayer].x - turn.x, turn.y - playerList[targetplayer].y) + ((Math.random()*(turn.accuracy*2)) - turn.accuracy) - Math.PI*0.5;
-			}else{
-				var random = Math.random();
-				if(random > 0.5){
+			if(AI_difficulty === 0){
+				if(distance < (1000 - settingsdata.accuracy*9000)){
 					turn.action = "shoot";
+					turn.line_angle = Math.atan2(playerList[targetplayer].x - turn.x, turn.y - playerList[targetplayer].y) + ((Math.random()*(turn.accuracy*2)) - turn.accuracy) - Math.PI*0.5;
+				}else if(distance > (1000 - settingsdata.accuracy*7000)){
+					turn.action = "shoot";
+					turn.line_angle = Math.atan2(playerList[targetplayer].x - turn.x, turn.y - playerList[targetplayer].y) + ((Math.random()*(turn.accuracy*2)) - turn.accuracy) - Math.PI*0.5;
 				}else{
 					turn.action = "move";
+					turn.line_angle = Math.atan2(playerList[targetplayer].x - turn.x, turn.y - playerList[targetplayer].y) + ((Math.random()*(turn.accuracy*2)) - turn.accuracy) - Math.PI*0.5;
 				}
-				turn.line_angle = Math.atan2(playerList[targetplayer].x - turn.x, turn.y - playerList[targetplayer].y) + ((Math.random()*(turn.accuracy*2)) - turn.accuracy) - Math.PI*0.5;
+			}else if(AI_difficulty === 1){
+				if(distance < (1000 - settingsdata.accuracy*9000)){
+					turn.action = "shoot";
+					turn.line_angle = Math.atan2(playerList[targetplayer].x - turn.x, turn.y - playerList[targetplayer].y) + ((Math.random()*(turn.accuracy*2)) - turn.accuracy) - Math.PI*0.5;
+				}else{
+					var random = Math.random();
+					if(random > 0.5){
+						turn.action = "shoot";
+					}else{
+						turn.action = "move";
+					}
+					turn.line_angle = Math.atan2(playerList[targetplayer].x - turn.x, turn.y - playerList[targetplayer].y) + ((Math.random()*(turn.accuracy*2)) - turn.accuracy) - Math.PI*0.5;
+				}
 			}
 			executeAction(turn);
 		}
