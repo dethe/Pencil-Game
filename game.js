@@ -77,8 +77,8 @@ canvas.ontouchend = function(event){
 
 document.ontouchmove = function(event){
 	event.preventDefault();
-	mouseX = event.touches[0].offsetX;
-	mouseY = event.touches[0].offsetY;
+	mouseX = event.touches[0].pageX;
+	mouseY = event.touches[0].pageY;
 }
 
 function click(){
