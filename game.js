@@ -125,7 +125,11 @@ function startGame(CurrScene){
 	drawGame();
 }
 
+var lastFrameTime = new Date();
 function drawGame(){
+	currFrameTime = new Date();
+	if (currFrameTime - lastFrameTime < 30) return;
+	lastFrameTime = currFrameTime;
 	clear();
 	currentScene.draw();
 	gameLoop = requestAnimationFrame(drawGame);
