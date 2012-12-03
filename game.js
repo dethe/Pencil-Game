@@ -57,26 +57,49 @@ var AI2 = {};
 var playerList = [];
 var turn = player;
 
-document.onmousemove = function(event){
+window.isTouch = window.hasOwnProperty('ontouchstart') && true;
+
+if (isTouch){
+	
+    document.ontouchmove = function(event){
+    	if (event.touches.length === 1){
+	    mouseX = event.touches[0].clientX;
+	    mouseY = event.touches[0].clientY;
+    	}
+    };
+
+    document.ontouchstart = function(event){
+    	if (event.touches.length === 1){
+	    if(turn === player && currentScene === game){
+		executeAction(player);
+	    }
+    	}
+    };
+
+    document.ontouch = function(event){
+	event.preventDefault();
+	click();
+    }
+
+}else{
+
+    document.onmousemove = function(event){
 	mouseX = event.clientX;
 	mouseY = event.clientY;
-};
+    };
 
-document.onmousedown = function(event){
+    document.onmousedown = function(event){
 	if(turn === player && currentScene === game){
 		executeAction(player);
 	}
-};
-
-document.onclick = function(event){
+    };
+ 
+    document.onclick = function(event){
 	event.preventDefault();
 	click();
+    }
 }
 
-document.ontouch = function(event){
-	event.preventDefault();
-	click();
-}
 
 function click(){
 	for(i = 0; i < currentScene.UI.length; i++){
