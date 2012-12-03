@@ -60,24 +60,34 @@ var AI2 = {};
 var playerList = [];
 var turn = player;
 
-document.onmousemove = function(event){
+window.isTouch = window.hasOwnProperty('ontouchstart') && true;
+
+if (isTouch){
+
+    canvas.ontouchend = function(event){
+	click();
+    }
+
+
+    document.ontouchmove = function(event){
+	if (event.touches.length === 1){
+	    event.preventDefault();
+	    mouseX = event.touches[0].pageX;
+ 	    mouseY = event.touches[0].pageY;
+	}
+    }
+
+}else{
+
+    document.onmousemove = function(event){
 	mouseX = event.offsetX;
 	mouseY = event.offsetY;
-};
-
-canvas.onclick = function(event){
+    };
+    canvas.onclick = function(event){
 	event.preventDefault();
 	click();
-}
+    }
 
-canvas.ontouchend = function(event){
-	click();
-}
-
-document.ontouchmove = function(event){
-	event.preventDefault();
-	mouseX = event.touches[0].pageX;
-	mouseY = event.touches[0].pageY;
 }
 
 function click(){
