@@ -6,6 +6,9 @@ var ctx = canvas.getContext("2d");
 var mouseX = 0;
 var mouseY = 0;
 
+var map1 = new Image(); 
+map1.src = "game map.png";
+
 (function() {
     var lastTime = 0;
     var vendors = ['ms', 'moz', 'webkit', 'o'];
@@ -37,7 +40,7 @@ var currentScene = undefined;
 var winner;
 
 var currentmap = 0;
-var maps = [{name: "Original Map", AI_amount: 2, spawns: [[100, 188], [500, 648], [800, 418]]}, {name: "Lines Map", AI_amount: 2, spawns: [[100, 188], [500, 628], [800, 418]]}];
+var maps = [{name: "Original Map", AI_amount: 2, spawns: [[100, 188], [500, 648], [800, 418]]}, {name: "Lines Map", AI_amount: 2, spawns: [[100, 188], [500, 628], [800, 418]]}, {name: "NEW", AI_amount: 2, spawns: [[100, 188], [500, 648], [800, 418]]}];
 var settingsdata = {
 	accuracy: 0.06,
 }
@@ -63,7 +66,6 @@ document.onmousemove = function(event){
 };
 
 canvas.onclick = function(event){
-	console.log('click');
 	event.preventDefault();
 	click();
 }
@@ -206,6 +208,8 @@ function drawmap(){
 		map.fillRect(0, 200, canvas.width, 60);
 		map.fillRect(0, 430, canvas.width, 60);
 		map.fillRect(0, 640, canvas.width, 60);
+	}else if(maps[currentmap].name === "NEW"){
+		map.drawImage(map1, 0, 0);
 	}
 	
 	map.globalCompositeOperation = "destination-out";
@@ -609,7 +613,6 @@ function executeAction(object){
 		if(object.type === "player"){
 			object.bullet.angle = Math.atan2(mouseY - (object.y + (object.h/2)), mouseX - (object.x + (object.w/2))) + ((Math.random()*(object.accuracy*2)) - object.accuracy);
 		}else if(object.type === "AI"){
-			console.log(object.line_angle);
 			object.bullet.angle = object.line_angle;
 		}
 	}
