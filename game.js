@@ -71,7 +71,6 @@ canvas.onclick = function(event){
 }
 
 canvas.ontouchend = function(event){
-	event.preventDefault();
 	click();
 }
 
